@@ -54,7 +54,7 @@ defmodule Ecto.Adapters.Firebird do
 
       socket_options: [recbuf: 8192, sndbuf: 8192]
 
-  We also recommend developers to consult the `Postgrex.start_link/1`
+  We also recommend developers to consult the `Firebirdex.start_link/1`
   documentation for a complete listing of all supported options.
 
   ### Storage options
@@ -71,19 +71,19 @@ defmodule Ecto.Adapters.Firebird do
   to the database, you can use the `:after_connect` configuration. For
   example, in your repository configuration you can add:
 
-      after_connect: {Postgrex, :query!, ["SET search_path TO global_prefix", []]}
+      after_connect: {Firebirdex, :query!, ["SET search_path TO global_prefix", []]}
 
-  You can also specify your own module that will receive the Postgrex
+  You can also specify your own module that will receive the Firebirdex
   connection as argument.
 
   ## Extensions
 
-  Both PostgreSQL and its adapter for Elixir, Postgrex, support an
-  extension system. If you want to use custom extensions for Postgrex
+  Both PostgreSQL and its adapter for Elixir, Firebirdex, support an
+  extension system. If you want to use custom extensions for Firebirdex
   alongside Ecto, you must define a type module with your extensions.
   Create a new file anywhere in your application with the following:
 
-      Postgrex.Types.define(MyApp.PostgresTypes,
+      Firebirdex.Types.define(MyApp.PostgresTypes,
                             [MyExtension.Foo, MyExtensionBar] ++ Ecto.Adapters.Postgres.extensions())
 
   Once your type module is defined, you can configure the repository to use it:
@@ -104,7 +104,7 @@ defmodule Ecto.Adapters.Firebird do
   @default_maintenance_database "postgres"
 
   @doc """
-  All Ecto extensions for Postgrex.
+  All Ecto extensions for Firebirdex.
   """
   def extensions do
     []
@@ -238,9 +238,9 @@ defmodule Ecto.Adapters.Firebird do
     {:ok, pid} = Task.Supervisor.start_link
 
     task = Task.Supervisor.async_nolink(pid, fn ->
-      {:ok, conn} = Postgrex.start_link(opts)
+      {:ok, conn} = Firebirdex.start_link(opts)
 
-      value = Postgrex.query(conn, sql, [], opts)
+      value = Firebirdex.query(conn, sql, [], opts)
       GenServer.stop(conn)
       value
     end)
@@ -253,7 +253,7 @@ defmodule Ecto.Adapters.Firebird do
       {:ok, {:error, error}} ->
         {:error, error}
       {:exit, {%{__struct__: struct} = error, _}}
-          when struct in [Postgrex.Error, DBConnection.Error] ->
+          when struct in [Firebirdex.Error, DBConnection.Error] ->
         {:error, error}
       {:exit, reason}  ->
         {:error, RuntimeError.exception(Exception.format_exit(reason))}

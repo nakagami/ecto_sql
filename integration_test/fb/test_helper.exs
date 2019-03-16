@@ -45,7 +45,7 @@ Application.put_env(:ecto_sql, PoolRepo,
   max_seconds: 10)
 
 defmodule Ecto.Integration.PoolRepo do
-  use Ecto.Integration.Repo, otp_app: :ecto_sql, adapter: Ecto.Adapters.Postgres
+  use Ecto.Integration.Repo, otp_app: :ecto_sql, adapter: Ecto.Adapters.Firebird
 end
 
 # Load support files

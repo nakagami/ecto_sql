@@ -1,5 +1,5 @@
-if Code.ensure_loaded?(Postgrex) do
-  defmodule Ecto.Adapters.Postgres.Connection do
+if Code.ensure_loaded?(Firebirdex) do
+  defmodule Ecto.Adapters.Firebird.Connection do
     @moduledoc false
 
     @default_port 5432
@@ -11,28 +11,27 @@ if Code.ensure_loaded?(Postgrex) do
     def child_spec(opts) do
       opts
       |> Keyword.put_new(:port, @default_port)
-      |> Postgrex.child_spec()
+      |> Firebirdex.child_spec()
     end
 
     @impl true
-    def to_constraints(%Postgrex.Error{postgres: %{code: :unique_violation, constraint: constraint}}),
+    def to_constraints(%Firebirdex.Error{postgres: %{code: :unique_violation, constraint: constraint}}),
       do: [unique: constraint]
-    def to_constraints(%Postgrex.Error{postgres: %{code: :foreign_key_violation, constraint: constraint}}),
+    def to_constraints(%Firebirdex.Error{postgres: %{code: :foreign_key_violation, constraint: constraint}}),
       do: [foreign_key: constraint]
-    def to_constraints(%Postgrex.Error{postgres: %{code: :exclusion_violation, constraint: constraint}}),
+    def to_constraints(%Firebirdex.Error{postgres: %{code: :exclusion_violation, constraint: constraint}}),
       do: [exclusion: constraint]
-    def to_constraints(%Postgrex.Error{postgres: %{code: :check_violation, constraint: constraint}}),
+    def to_constraints(%Firebirdex.Error{postgres: %{code: :check_violation, constraint: constraint}}),
       do: [check: constraint]
 
-    # Postgres 9.2 and earlier does not provide the constraint field
     @impl true
-    def to_constraints(%Postgrex.Error{postgres: %{code: :unique_violation, message: message}}) do
+    def to_constraints(%Firebirdex.Error{postgres: %{code: :unique_violation, message: message}}) do
       case :binary.split(message, " unique constraint ") do
         [_, quoted] -> [unique: strip_quotes(quoted)]
         _ -> []
       end
     end
-    def to_constraints(%Postgrex.Error{postgres: %{code: :foreign_key_violation, message: message}}) do
+    def to_constraints(%Firebirdex.Error{postgres: %{code: :foreign_key_violation, message: message}}) do
       case :binary.split(message, " foreign key constraint ") do
         [_, quoted] ->
           [quoted | _] = :binary.split(quoted, " on table ")
@@ -41,13 +40,13 @@ if Code.ensure_loaded?(Postgrex) do
           []
       end
     end
-    def to_constraints(%Postgrex.Error{postgres: %{code: :exclusion_violation, message: message}}) do
+    def to_constraints(%Firebirdex.Error{postgres: %{code: :exclusion_violation, message: message}}) do
       case :binary.split(message, " exclusion constraint ") do
         [_, quoted] -> [exclusion: strip_quotes(quoted)]
         _ -> []
       end
     end
-    def to_constraints(%Postgrex.Error{postgres: %{code: :check_violation, message: message}}) do
+    def to_constraints(%Firebirdex.Error{postgres: %{code: :check_violation, message: message}}) do
       case :binary.split(message, " check constraint ") do
         [_, quoted] -> [check: strip_quotes(quoted)]
         _ -> []
@@ -67,27 +66,27 @@ if Code.ensure_loaded?(Postgrex) do
 
     @impl true
     def prepare_execute(conn, name, sql, params, opts) do
-      Postgrex.prepare_execute(conn, name, sql, params, opts)
+      Firebirdex.prepare_execute(conn, name, sql, params, opts)
     end
 
     @impl true
     def query(conn, sql, params, opts) do
-      Postgrex.query(conn, sql, params, opts)
+      Firebirdex.query(conn, sql, params, opts)
     end
 
     @impl true
     def execute(conn, %{ref: ref} = query, params, opts) do
-      case Postgrex.execute(conn, query, params, opts) do
+      case Firebirdex.execute(conn, query, params, opts) do
         {:ok, %{ref: ^ref}, result} ->
           {:ok, result}
 
         {:ok, _, _} = ok ->
           ok
 
-        {:error, %Postgrex.QueryError{} = err} ->
+        {:error, %Firebirdex.QueryError{} = err} ->
           {:reset, err}
 
-        {:error, %Postgrex.Error{postgres: %{code: :feature_not_supported}} = err} ->
+        {:error, %Firebirdex.Error{postgres: %{code: :feature_not_supported}} = err} ->
           {:reset, err}
 
         {:error, _} = error ->
@@ -97,7 +96,7 @@ if Code.ensure_loaded?(Postgrex) do
 
     @impl true
     def stream(conn, sql, params, opts) do
-      Postgrex.stream(conn, sql, params, opts)
+      Firebirdex.stream(conn, sql, params, opts)
     end
 
     alias Ecto.Query.{BooleanExpr, JoinExpr, QueryExpr}
@@ -740,7 +739,7 @@ if Code.ensure_loaded?(Postgrex) do
     def execute_ddl({:create_if_not_exists, %Index{} = index}) do
       if index.concurrently do
         raise ArgumentError,
-              "concurrent index and create_if_not_exists is not supported by the Postgres adapter"
+              "concurrent index and create_if_not_exists is not supported by the Firebird adapter"
       end
 
       [["DO $$ BEGIN ",
@@ -789,7 +788,7 @@ if Code.ensure_loaded?(Postgrex) do
       do: error!(nil, "PostgreSQL adapter does not support keyword lists in execute")
 
     @impl true
-    def ddl_logs(%Postgrex.Result{} = result) do
+    def ddl_logs(%Firebirdex.Result{} = result) do
       %{messages: messages} = result
 
       for message <- messages do
