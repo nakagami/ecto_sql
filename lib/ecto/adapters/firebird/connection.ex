@@ -14,48 +14,6 @@ if Code.ensure_loaded?(Firebirdex) do
       |> Firebirdex.child_spec()
     end
 
-    @impl true
-    def to_constraints(%Firebirdex.Error{postgres: %{code: :unique_violation, constraint: constraint}}),
-      do: [unique: constraint]
-    def to_constraints(%Firebirdex.Error{postgres: %{code: :foreign_key_violation, constraint: constraint}}),
-      do: [foreign_key: constraint]
-    def to_constraints(%Firebirdex.Error{postgres: %{code: :exclusion_violation, constraint: constraint}}),
-      do: [exclusion: constraint]
-    def to_constraints(%Firebirdex.Error{postgres: %{code: :check_violation, constraint: constraint}}),
-      do: [check: constraint]
-
-    @impl true
-    def to_constraints(%Firebirdex.Error{postgres: %{code: :unique_violation, message: message}}) do
-      case :binary.split(message, " unique constraint ") do
-        [_, quoted] -> [unique: strip_quotes(quoted)]
-        _ -> []
-      end
-    end
-    def to_constraints(%Firebirdex.Error{postgres: %{code: :foreign_key_violation, message: message}}) do
-      case :binary.split(message, " foreign key constraint ") do
-        [_, quoted] ->
-          [quoted | _] = :binary.split(quoted, " on table ")
-          [foreign_key: strip_quotes(quoted)]
-        _ ->
-          []
-      end
-    end
-    def to_constraints(%Firebirdex.Error{postgres: %{code: :exclusion_violation, message: message}}) do
-      case :binary.split(message, " exclusion constraint ") do
-        [_, quoted] -> [exclusion: strip_quotes(quoted)]
-        _ -> []
-      end
-    end
-    def to_constraints(%Firebirdex.Error{postgres: %{code: :check_violation, message: message}}) do
-      case :binary.split(message, " check constraint ") do
-        [_, quoted] -> [check: strip_quotes(quoted)]
-        _ -> []
-      end
-    end
-
-    def to_constraints(_),
-      do: []
-
     defp strip_quotes(quoted) do
       size = byte_size(quoted) - 2
       <<_, unquoted::binary-size(size), _>> = quoted
@@ -83,10 +41,7 @@ if Code.ensure_loaded?(Firebirdex) do
         {:ok, _, _} = ok ->
           ok
 
-        {:error, %Firebirdex.QueryError{} = err} ->
-          {:reset, err}
-
-        {:error, %Firebirdex.Error{postgres: %{code: :feature_not_supported}} = err} ->
+        {:error, %Firebirdex.Error{} = err} ->
           {:reset, err}
 
         {:error, _} = error ->
