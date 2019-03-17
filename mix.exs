@@ -2,7 +2,7 @@ defmodule EctoSQL.MixProject do
   use Mix.Project
 
   @version "3.1.0-dev"
-  @adapters ~w(pg mysql)
+  @adapters ~w(pg mysql fb)
 
   def project do
     [
