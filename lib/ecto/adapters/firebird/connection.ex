@@ -2,7 +2,7 @@ if Code.ensure_loaded?(Firebirdex) do
   defmodule Ecto.Adapters.Firebird.Connection do
     @moduledoc false
 
-    @default_port 5432
+    @default_port 3050
     @behaviour Ecto.Adapters.SQL.Connection
 
     ## Module and Options
