@@ -6,7 +6,7 @@ Application.put_env(:ecto, :async_integration_tests, true)
 Application.put_env(:ecto_sql, :lock_for_update, "FOR UPDATE")
 
 # Configure PG connection
-Application.put_env(:ecto_sql, :pg_test_url,
+Application.put_env(:ecto_sql, :fb_test_url,
   "ecto://" <> (System.get_env("FB_URL") || "sysdba:masterkey@localhost")
 )
 
@@ -39,7 +39,7 @@ end
 alias Ecto.Integration.PoolRepo
 
 Application.put_env(:ecto_sql, PoolRepo,
-  url: Application.get_env(:ecto_sql, :pg_test_url) <> "/tmp/ecto_test.fdb",
+  url: Application.get_env(:ecto_sql, :pg_test_url) <> "/ecto_test",
   pool_size: 10,
   max_restarts: 20,
   max_seconds: 10)
@@ -61,11 +61,7 @@ defmodule Ecto.Integration.Case do
   end
 end
 
-{:ok, _} = Ecto.Adapters.Postgres.ensure_all_started(TestRepo.config(), :temporary)
-
-# Load up the repository, start it, and run migrations
-_   = Ecto.Adapters.Postgres.storage_down(TestRepo.config)
-:ok = Ecto.Adapters.Postgres.storage_up(TestRepo.config)
+{:ok, _} = Ecto.Adapters.Firebird.ensure_all_started(TestRepo.config(), :temporary)
 
 {:ok, _pid} = TestRepo.start_link()
 {:ok, _pid} = PoolRepo.start_link()
