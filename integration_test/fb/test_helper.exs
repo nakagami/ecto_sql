@@ -16,7 +16,7 @@ Code.require_file "../support/repo.exs", __DIR__
 alias Ecto.Integration.TestRepo
 
 Application.put_env(:ecto_sql, TestRepo,
-  url: Application.get_env(:ecto_sql, :pg_test_url) <> "/ecto_test",
+  url: Application.get_env(:ecto_sql, :fb_test_url) <> "/ecto_test",
   pool: Ecto.Adapters.SQL.Sandbox)
 
 defmodule Ecto.Integration.TestRepo do
@@ -39,7 +39,7 @@ end
 alias Ecto.Integration.PoolRepo
 
 Application.put_env(:ecto_sql, PoolRepo,
-  url: Application.get_env(:ecto_sql, :pg_test_url) <> "/ecto_test",
+  url: Application.get_env(:ecto_sql, :fb_test_url) <> "/ecto_test",
   pool_size: 10,
   max_restarts: 20,
   max_seconds: 10)
