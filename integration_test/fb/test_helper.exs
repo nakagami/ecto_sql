@@ -22,16 +22,6 @@ Application.put_env(:ecto_sql, TestRepo,
 defmodule Ecto.Integration.TestRepo do
   use Ecto.Integration.Repo, otp_app: :ecto_sql, adapter: Ecto.Adapters.Firebird
 
-  def create_prefix(prefix) do
-    # TODO:
-    ""
-  end
-
-  def drop_prefix(prefix) do
-    # TODO:
-    ""
-  end
-
   def uuid do
     Ecto.UUID
   end
