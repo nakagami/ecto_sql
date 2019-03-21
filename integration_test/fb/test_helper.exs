@@ -5,7 +5,7 @@ Application.put_env(:ecto, :primary_key_type, :id)
 Application.put_env(:ecto, :async_integration_tests, true)
 Application.put_env(:ecto_sql, :lock_for_update, "FOR UPDATE")
 
-# Configure PG connection
+# Configure FB connection
 Application.put_env(:ecto_sql, :fb_test_url,
   "ecto://" <> (System.get_env("FB_URL") || "sysdba:masterkey@localhost")
 )
@@ -23,10 +23,12 @@ defmodule Ecto.Integration.TestRepo do
   use Ecto.Integration.Repo, otp_app: :ecto_sql, adapter: Ecto.Adapters.Firebird
 
   def create_prefix(prefix) do
+    # TODO:
     ""
   end
 
   def drop_prefix(prefix) do
+    # TODO:
     ""
   end
 
@@ -39,10 +41,9 @@ end
 alias Ecto.Integration.PoolRepo
 
 Application.put_env(:ecto_sql, PoolRepo,
+  adapter: Ecto.Adapters.Firebird,
   url: Application.get_env(:ecto_sql, :fb_test_url) <> "/ecto_test",
-  pool_size: 10,
-  max_restarts: 20,
-  max_seconds: 10)
+  pool_size: 10)
 
 defmodule Ecto.Integration.PoolRepo do
   use Ecto.Integration.Repo, otp_app: :ecto_sql, adapter: Ecto.Adapters.Firebird
@@ -66,7 +67,16 @@ end
 {:ok, _pid} = TestRepo.start_link()
 {:ok, _pid} = PoolRepo.start_link()
 
-excludes = [:add_column_if_not_exists, :no_error_on_conditional_column_migration]
+excludes = [
+  :array_type,
+  :read_after_writes,
+  :create_index_if_not_exists,
+  :aggregate_filters,
+  :transaction_isolation,
+  :with_conflict_target,
+  :map_boolean_in_expression
+]
+
 ExUnit.configure(exclude: excludes)
 
 :ok = Ecto.Migrator.up(TestRepo, 0, Ecto.Integration.Migration, log: false)

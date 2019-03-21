@@ -241,7 +241,7 @@ if Code.ensure_loaded?(Firebirdex) do
     end
 
     defp from(%{from: %{hints: [_ | _]}} = query, _sources) do
-      error!(query, "table hints are not supported by PostgreSQL")
+      error!(query, "table hints are not supported by Firebird")
     end
 
     defp from(%{from: %{source: source}} = query, sources) do
@@ -276,7 +276,7 @@ if Code.ensure_loaded?(Firebirdex) do
     end
 
     defp update_op(command, _key, _value, _sources, query) do
-      error!(query, "unknown update operation #{inspect command} for PostgreSQL")
+      error!(query, "unknown update operation #{inspect command} for Firebird")
     end
 
     defp using_join(%{joins: []}, _kind, _prefix, _sources), do: {[], []}
@@ -287,7 +287,7 @@ if Code.ensure_loaded?(Firebirdex) do
             {join, name} = get_source(query, sources, ix, source)
             [join, " AS " | name]
           %JoinExpr{qual: qual} ->
-            error!(query, "PostgreSQL supports only inner joins on #{kind}, got: `#{qual}`")
+            error!(query, "Firebird supports only inner joins on #{kind}, got: `#{qual}`")
         end)
 
       wheres =
@@ -303,7 +303,7 @@ if Code.ensure_loaded?(Firebirdex) do
       [?\s | intersperse_map(joins, ?\s, fn
         %JoinExpr{on: %QueryExpr{expr: expr}, qual: qual, ix: ix, source: source, hints: hints} ->
           if hints != [] do
-            error!(query, "table hints are not supported by PostgreSQL")
+            error!(query, "table hints are not supported by Firebird")
           end
 
           {join, name} = get_source(query, sources, ix, source)
@@ -476,7 +476,7 @@ if Code.ensure_loaded?(Firebirdex) do
     end
 
     defp expr({:fragment, _, [kw]}, _sources, query) when is_list(kw) or tuple_size(kw) == 3 do
-      error!(query, "PostgreSQL adapter does not support keyword or interpolated fragments")
+      error!(query, "Firebird adapter does not support keyword or interpolated fragments")
     end
 
     defp expr({:fragment, _, parts}, sources, query) do
@@ -740,7 +740,7 @@ if Code.ensure_loaded?(Firebirdex) do
     def execute_ddl(string) when is_binary(string), do: [string]
 
     def execute_ddl(keyword) when is_list(keyword),
-      do: error!(nil, "PostgreSQL adapter does not support keyword lists in execute")
+      do: error!(nil, "Firebird adapter does not support keyword lists in execute")
 
     @impl true
     def ddl_logs(%Firebirdex.Result{} = result) do
@@ -900,7 +900,7 @@ if Code.ensure_loaded?(Firebirdex) do
         encoded = "\\x" <> Base.encode16(literal, case: :lower)
         raise ArgumentError, "default values are interpolated as UTF-8 strings and cannot contain null bytes. " <>
                              "`#{inspect literal}` is invalid. If you want to write it as a binary, use \"#{encoded}\", " <>
-                             "otherwise refer to PostgreSQL documentation for instructions on how to escape this SQL type"
+                             "otherwise refer to Firebird documentation for instructions on how to escape this SQL type"
       end
     end
     defp default_type(literal, _type) when is_number(literal),  do: to_string(literal)
@@ -924,7 +924,7 @@ if Code.ensure_loaded?(Firebirdex) do
     defp options_expr(nil),
       do: []
     defp options_expr(keyword) when is_list(keyword),
-      do: error!(nil, "PostgreSQL adapter does not support keyword lists in :options")
+      do: error!(nil, "Firebird adapter does not support keyword lists in :options")
     defp options_expr(options),
       do: [?\s, options]
 
