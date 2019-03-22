@@ -742,26 +742,7 @@ if Code.ensure_loaded?(Firebirdex) do
       do: error!(nil, "Firebird adapter does not support keyword lists in execute")
 
     @impl true
-    def ddl_logs(%Firebirdex.Result{} = result) do
-      %{messages: messages} = result
-
-      for message <- messages do
-        %{message: message, severity: severity} = message
-
-        {ddl_log_level(severity), message, []}
-      end
-    end
-
-    # From https://www.postgresql.org/docs/9.3/static/protocol-error-fields.html.
-    defp ddl_log_level("DEBUG"), do: :debug
-    defp ddl_log_level("LOG"), do: :info
-    defp ddl_log_level("INFO"), do: :info
-    defp ddl_log_level("NOTICE"), do: :info
-    defp ddl_log_level("WARNING"), do: :warn
-    defp ddl_log_level("ERROR"), do: :error
-    defp ddl_log_level("FATAL"), do: :error
-    defp ddl_log_level("PANIC"), do: :error
-    defp ddl_log_level(_severity), do: :info
+    def ddl_logs(_), do: []
 
     defp pk_definition(columns, prefix) do
       pks =
