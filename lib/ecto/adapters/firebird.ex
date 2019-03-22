@@ -94,14 +94,14 @@ defmodule Ecto.Adapters.Firebird do
 
   # Inherit all behaviour from Ecto.Adapters.SQL
   use Ecto.Adapters.SQL,
-    driver: :postgrex,
-    migration_lock: "FOR UPDATE"
+    driver: :firebirdex,
+    migration_lock: ""
 
   # And provide a custom storage implementation
   @behaviour Ecto.Adapter.Storage
   @behaviour Ecto.Adapter.Structure
 
-  @default_maintenance_database "postgres"
+  @default_maintenance_database "ecto_test"
 
   @doc """
   All Ecto extensions for Firebirdex.
