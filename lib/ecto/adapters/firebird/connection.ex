@@ -648,8 +648,7 @@ if Code.ensure_loaded?(Firebirdex) do
     @impl true
     def execute_ddl({command, %Table{} = table, columns}) when command in @creates do
       table_name = quote_table(table.prefix, table.name)
-      query = ["CREATE TABLE ",
-               if_do(command == :create_if_not_exists, "IF NOT EXISTS "),
+      query = ["RECREATE TABLE ",
                table_name, ?\s, ?(,
                column_definitions(table, columns), pk_definition(columns, ", "), ?),
                options_expr(table.options)]
@@ -932,7 +931,7 @@ if Code.ensure_loaded?(Firebirdex) do
       do: [column_type(type, opts), "[]"]
 
     defp column_type(type, _opts) when type in ~w(time utc_datetime naive_datetime)a,
-      do: [ecto_to_db(type), "(0)"]
+      do: ecto_to_db(type)
 
     defp column_type(type, opts) when type in ~w(time_usec utc_datetime_usec naive_datetime_usec)a do
       precision = Keyword.get(opts, :precision)

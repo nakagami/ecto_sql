@@ -51,7 +51,7 @@ defmodule EctoSQL.MixProject do
       {:db_connection, "~> 2.0"},
       {:postgrex, "~> 0.14.0", optional: true},
       {:mariaex, "~> 0.9.1", optional: true},
-      {:firebirdex, "~> 0.0.7", optional: true},
+      {:firebirdex, "~> 0.0.9", optional: true},
 
       # Bring something in for JSON during tests
       {:jason, ">= 0.0.0", only: :test},
