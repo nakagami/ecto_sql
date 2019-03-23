@@ -290,9 +290,4 @@ defmodule Ecto.Adapters.Firebird do
     System.cmd(cmd, args, env: env, stderr_to_stdout: true)
   end
 
-  @impl true
-  def lock_for_migrations(_, _, _, _) do
-    :ok
-  end
-
 end
