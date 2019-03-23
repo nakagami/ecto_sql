@@ -1050,8 +1050,8 @@ if Code.ensure_loaded?(Firebirdex) do
     defp ecto_to_db(:binary_id),           do: "varchar(32)"
     defp ecto_to_db(:string),              do: "varchar"
     defp ecto_to_db(:binary),              do: "blob sub_type 0"
-    defp ecto_to_db(:map),                 do: Application.fetch_env!(:ecto_sql, :postgres_map_type)
-    defp ecto_to_db({:map, _}),            do: Application.fetch_env!(:ecto_sql, :postgres_map_type)
+    defp ecto_to_db(:map),                 do: "blob sub_type 1"
+    defp ecto_to_db({:map, _}),            do: "blob sub_type 1"
     defp ecto_to_db(:time_usec),           do: "time"
     defp ecto_to_db(:utc_datetime),        do: "timestamp"
     defp ecto_to_db(:utc_datetime_usec),   do: "timestamp"
