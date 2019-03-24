@@ -856,7 +856,7 @@ if Code.ensure_loaded?(Firebirdex) do
     end
 
     defp null_expr(false), do: " NOT NULL"
-    defp null_expr(true), do: " NULL"
+    # defp null_expr(true), do: " NULL"
     defp null_expr(_), do: []
 
     defp new_constraint_expr(%Constraint{check: check} = constraint) when is_binary(check) do
