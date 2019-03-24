@@ -72,7 +72,7 @@ if Code.ensure_loaded?(Postgrex) do
 
     @impl true
     def query(conn, sql, params, opts) do
-      IO.puts sql
+      #IO.puts sql
       Postgrex.query(conn, sql, params, opts)
     end
 
