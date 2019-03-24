@@ -70,7 +70,7 @@ excludes = [
 
 ExUnit.configure(exclude: excludes)
 
-:ok = Ecto.Migrator.up(TestRepo, 0, Ecto.Integration.Migration, log: true)
+:ok = Ecto.Migrator.up(TestRepo, 0, Ecto.Integration.Migration, log: :debug)
 Ecto.Adapters.SQL.Sandbox.mode(TestRepo, :manual)
 Process.flag(:trap_exit, true)
 
