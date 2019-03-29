@@ -29,6 +29,7 @@ if Code.ensure_loaded?(Firebirdex) do
 
     @impl true
     def query(conn, sql, params, opts) do
+      IO.puts "query: #{sql}"
       Firebirdex.query(conn, sql, params, opts)
     end
 
@@ -653,9 +654,7 @@ if Code.ensure_loaded?(Firebirdex) do
                column_definitions(table, columns), pk_definition(columns, ", "), ?),
                options_expr(table.options)]
 
-      [query] ++
-        comments_on("TABLE", table_name, table.comment) ++
-        comments_for_columns(table_name, columns)
+      [query]
     end
 
     def execute_ddl({command, %Table{} = table}) when command in @drops do
@@ -668,9 +667,7 @@ if Code.ensure_loaded?(Firebirdex) do
       query = ["ALTER TABLE ", table_name, ?\s,
                column_changes(table, changes), pk_definition(changes, ", ADD ")]
 
-      [query] ++
-        comments_on("TABLE", table_name, table.comment) ++
-        comments_for_columns(table_name, changes)
+      [query]
     end
 
     def execute_ddl({:create, %Index{} = index}) do
@@ -687,7 +684,7 @@ if Code.ensure_loaded?(Firebirdex) do
                   ?\s, ?(, fields, ?),
                   if_do(index.where, [" WHERE ", to_string(index.where)])]]
 
-      queries ++ comments_on("INDEX", quote_name(index.name), index.comment)
+      queries
     end
 
     def execute_ddl({:create_if_not_exists, %Index{} = index}) do
@@ -723,7 +720,7 @@ if Code.ensure_loaded?(Firebirdex) do
       queries = [["ALTER TABLE ", table_name,
                   " ADD ", new_constraint_expr(constraint)]]
 
-      queries ++ comments_on("CONSTRAINT", constraint.name, constraint.comment, table_name)
+      queries
     end
 
     def execute_ddl({:drop, %Constraint{} = constraint}) do
@@ -754,26 +751,6 @@ if Code.ensure_loaded?(Firebirdex) do
         [] -> []
         _  -> [prefix, "PRIMARY KEY (", intersperse_map(pks, ", ", &quote_name/1), ")"]
       end
-    end
-
-    defp comments_on(_object, _name, nil), do: []
-    defp comments_on(object, name, comment) do
-      [["COMMENT ON ", object, ?\s, name, " IS ", single_quote(comment)]]
-    end
-
-    defp comments_on(_object, _name, nil, _table_name), do:  []
-    defp comments_on(object, name, comment, table_name) do
-      [["COMMENT ON ", object, ?\s, quote_name(name), " ON ", table_name,
-        " IS ", single_quote(comment)]]
-    end
-
-    defp comments_for_columns(table_name, columns) do
-      Enum.flat_map(columns, fn
-        {_operation, column_name, _column_type, opts} ->
-          column_name = [table_name, ?. | quote_name(column_name)]
-          comments_on("COLUMN", column_name, opts[:comment])
-        _ -> []
-      end)
     end
 
     defp column_definitions(table, columns) do
