@@ -649,7 +649,7 @@ if Code.ensure_loaded?(Firebirdex) do
     @impl true
     def execute_ddl({command, %Table{} = table, columns}) when command in @creates do
       table_name = quote_table(table.prefix, table.name)
-      query = ["RECREATE TABLE ",
+      query = ["CREATE TABLE ",
                table_name, ?\s, ?(,
                column_definitions(table, columns), pk_definition(columns, ", "), ?),
                options_expr(table.options)]

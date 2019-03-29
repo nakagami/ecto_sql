@@ -159,6 +159,7 @@ defmodule Ecto.Migrator do
 
     if migrated_successfully?(ref, task.pid) do
       try do
+        IO.puts "migrated_successfully?"
         # The table with schema migrations can only be updated from
         # the parent process because it has a lock on the table
         verbose_schema_migration repo, "update schema migrations", fn ->
@@ -166,6 +167,7 @@ defmodule Ecto.Migrator do
         end
       catch
         kind, error ->
+          IO.puts "#{inspect(error)}"
           Task.shutdown(task, :brutal_kill)
           :erlang.raise(kind, error, System.stacktrace())
       end
