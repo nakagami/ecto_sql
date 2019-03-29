@@ -166,8 +166,8 @@ defmodule Ecto.Migrator do
         end
       catch
         kind, error ->
-          Task.shutdown(task, :brutal_kill)
-          :erlang.raise(kind, error, System.stacktrace())
+          #Task.shutdown(task, :brutal_kill)
+          #:erlang.raise(kind, error, System.stacktrace())
       end
     end
 
