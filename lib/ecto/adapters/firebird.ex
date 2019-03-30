@@ -122,25 +122,13 @@ defmodule Ecto.Adapters.Firebird do
 
   @impl true
   def storage_up(opts) do
-    database = Keyword.fetch!(opts, :database) || raise ":database is nil in repository configuration"
-    encoding = opts[:encoding] || "UTF8"
-    maintenance_database = Keyword.get(opts, :maintenance_database, @default_maintenance_database)
-    opts = Keyword.put(opts, :database, maintenance_database)
-
-    command =
-      ~s(CREATE DATABASE "#{database}" ENCODING '#{encoding}')
-      |> concat_if(opts[:template], &"TEMPLATE=#{&1}")
-      |> concat_if(opts[:lc_ctype], &"LC_CTYPE='#{&1}'")
-      |> concat_if(opts[:lc_collate], &"LC_COLLATE='#{&1}'")
-
-    case run_query(command, opts) do
-      {:ok, _} ->
-        :ok
-      {:error, %{postgres: %{code: :duplicate_database}}} ->
-        {:error, :already_up}
-      {:error, error} ->
-        {:error, Exception.message(error)}
-    end
+    hostname = to_charlist(opts[:hostname])
+    username = to_charlist(opts[:username])
+    password = to_charlist(opts[:password])
+    database = to_charlist(opts[:database])
+    {:ok, conn} = :efirebirdsql_protocol.connect(hostname, username, password, database, [createdb: true])
+    :efirebirdsql_protocol.close(conn)
+    :ok
   end
 
   defp concat_if(content, nil, _fun),  do: content
@@ -148,19 +136,8 @@ defmodule Ecto.Adapters.Firebird do
 
   @impl true
   def storage_down(opts) do
-    database = Keyword.fetch!(opts, :database) || raise ":database is nil in repository configuration"
-    command  = "DROP DATABASE \"#{database}\""
-    maintenance_database = Keyword.get(opts, :maintenance_database, @default_maintenance_database)
-    opts = Keyword.put(opts, :database, maintenance_database)
-
-    case run_query(command, opts) do
-      {:ok, _} ->
-        :ok
-      {:error, %{postgres: %{code: :invalid_catalog_name}}} ->
-        {:error, :already_down}
-      {:error, error} ->
-        {:error, Exception.message(error)}
-    end
+    # TODO:
+    :ok
   end
 
   @impl true

@@ -54,7 +54,8 @@ end
 
 {:ok, _} = Ecto.Adapters.Firebird.ensure_all_started(TestRepo.config(), :temporary)
 
-#:ok = Ecto.Adapters.Firebird.storage_up(TestRepo.config)
+_ = Ecto.Adapters.Firebird.storage_down(TestRepo.config)
+:ok = Ecto.Adapters.Firebird.storage_up(TestRepo.config)
 
 {:ok, _pid} = TestRepo.start_link()
 {:ok, _pid} = PoolRepo.start_link()
