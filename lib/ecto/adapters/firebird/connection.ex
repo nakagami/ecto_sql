@@ -435,11 +435,12 @@ if Code.ensure_loaded?(Firebirdex) do
     end
 
     defp expr({:^, [], [ix]}, _sources, _query) do
-      [?$ | Integer.to_string(ix + 1)]
+      '?'
     end
 
     defp expr({{:., _, [{:&, _, [idx]}, field]}, _, []}, sources, _query) when is_atom(field) do
-      quote_qualified_name(field, sources, idx)
+      {_, name, _} = elem(sources, idx)
+      [name, ?. | quote_name(field)]
     end
 
     defp expr({:&, _, [idx]}, sources, _query) do
@@ -456,8 +457,13 @@ if Code.ensure_loaded?(Firebirdex) do
       [expr(left, sources, query), " IN (", args, ?)]
     end
 
-    defp expr({:in, _, [left, {:^, _, [ix, _]}]}, sources, query) do
-      [expr(left, sources, query), " = ANY($", Integer.to_string(ix + 1), ?)]
+    defp expr({:in, _, [_, {:^, _, [_, 0]}]}, _sources, _query) do
+      "false"
+    end
+
+    defp expr({:in, _, [left, {:^, _, [_, length]}]}, sources, query) do
+      args = Enum.intersperse(List.duplicate(??, length), ?,)
+      [expr(left, sources, query), " IN (", args, ?)]
     end
 
     defp expr({:in, _, [left, right]}, sources, query) do
@@ -489,13 +495,13 @@ if Code.ensure_loaded?(Firebirdex) do
     end
 
     defp expr({:datetime_add, _, [datetime, count, interval]}, sources, query) do
-      [expr(datetime, sources, query), "::timestamp + ",
-       interval(count, interval, sources, query)]
+      ["date_add(", expr(datetime, sources, query), ", ",
+       interval(count, interval, sources, query) | ")"]
     end
 
     defp expr({:date_add, _, [date, count, interval]}, sources, query) do
-      [?(, expr(date, sources, query), "::date + ",
-       interval(count, interval, sources, query) | ")::date"]
+      ["CAST(date_add(", expr(date, sources, query), ", ",
+       interval(count, interval, sources, query) | ") AS date)"]
     end
 
     defp expr({:filter, _, [agg, filter]}, sources, query) do
@@ -649,7 +655,7 @@ if Code.ensure_loaded?(Firebirdex) do
     @impl true
     def execute_ddl({command, %Table{} = table, columns}) when command in @creates do
       table_name = quote_table(table.prefix, table.name)
-      query = ["CREATE TABLE ",
+      query = ["RECREATE TABLE ",
                table_name, ?\s, ?(,
                column_definitions(table, columns), pk_definition(columns, ", "), ?),
                options_expr(table.options)]
