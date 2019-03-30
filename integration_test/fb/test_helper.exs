@@ -3,13 +3,14 @@ Logger.configure(level: :debug)
 # Configure Ecto for support and tests
 Application.put_env(:ecto, :primary_key_type, :id)
 Application.put_env(:ecto, :async_integration_tests, true)
+Application.put_env(:ecto_sql, :lock_for_update, "FOR UPDATE")
+
+Code.require_file "../support/repo.exs", __DIR__
 
 # Configure FB connection
 Application.put_env(:ecto_sql, :fb_test_url,
   "ecto://" <> (System.get_env("FB_URL") || "sysdba:masterkey@localhost")
 )
-
-Code.require_file "../support/repo.exs", __DIR__
 
 # Pool repo for async, safe tests
 alias Ecto.Integration.TestRepo
