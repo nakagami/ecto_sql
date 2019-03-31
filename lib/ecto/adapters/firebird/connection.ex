@@ -29,7 +29,6 @@ if Code.ensure_loaded?(Firebirdex) do
 
     @impl true
     def query(conn, sql, params, opts) do
-      IO.puts "query: #{sql}"
       Firebirdex.query(conn, sql, params, opts)
     end
 
