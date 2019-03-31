@@ -126,7 +126,7 @@ defmodule Ecto.Adapters.Firebird do
     username = to_charlist(opts[:username])
     password = to_charlist(opts[:password])
     database = to_charlist(opts[:database])
-    {:ok, conn} = :efirebirdsql_protocol.connect(hostname, username, password, database, [createdb: true])
+    {:ok, conn} = :efirebirdsql_protocol.connect(hostname, username, password, database, [createdb: true, pagesize: 32767])
     :efirebirdsql_protocol.close(conn)
     :ok
   end
